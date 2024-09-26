@@ -98,8 +98,8 @@ void Ex11_alphanumericCheck(char c) {
 }
 
 void Ex12_triangleValidCheck(unsigned int a, unsigned int b, unsigned int c) {
-    if ((a + b + c) == 180) std::cout("Valid triangle!");
-    else std::cout("Invalid triangle!")
+    if ((a + b + c) == 180) printf("Valid triangle!");
+    else printf("Invalid triangle!")
 }
 
 int Ex13_markInput() {
