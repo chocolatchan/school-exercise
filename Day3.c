@@ -27,14 +27,23 @@ typedef struct {
     int year;
 } Date;
 
-void Date_term_export(Date D) {
-    printf("%d/%d/%d", D.day, D.month, D.year);
+/**
+ * D1 > D2: -> <0
+ * D1 < D2: -> >0
+ * D1 = D2: -> =0
+ */
+int Date_cmp(Date D1, Date D2) {
+    if (D1.year != D2.year) {
+        return D2.year - D1.year;
+    } else if (D1.month != D2.month) {
+        return D2.month - D1.month;
+    } else if (D1.day != D2.day) {
+        return D2.day - D1.day;
+    } else return 0;
 }
 
-void Date_inp(Date *D, int day, int month, int year) {
-    D -> day = day;
-    D -> month = month;
-    D -> year = year;
+void Date_term_export(Date D) {
+    printf("%d/%d/%d", D.day, D.month, D.year);
 }
 
 int Date_valid_check(Date D) {
@@ -94,12 +103,58 @@ LOOP:
     LF_trim(E -> id);
 }
 
+void Array__Employee_swap(Employee *E1, Employee *E2) {
+    Employee *T = E1;
+    E1 = E2;
+    E2 = T;
+}
+
 //[Exercise 4]
 int Array__Employee_searchByID(char *ID, Employee E[], int n) {
     for(int i = 0; i < n; ++i)
         if (strcmp(ID, E[i].id) == 0)
             return i;
     return -1;
+}
+//[Exercise 6]
+int Array__Employee_sortBubble_birthday(Employee *E, int n) {
+    for (int i = 0; i < n - 1; ++i) {
+        for (int j = i + 1; j < n; ++j) {
+            if (Date_cmp(E[i].birthday, E[j].birthday) < 0) {
+                Array__Employee_swap(&E[i], &E[j]);
+            }
+        }
+    }
+}
+
+int Array__Employee_sortBubble_salary(Employee *E, int n) {
+    for (int i = 0; i < n - 1; ++i) {
+        for (int j = i + 1; j < n; ++j) {
+            if (E[i].salary > E[j].salary) {
+                Array__Employee_swap(&E[i], &E[j]);
+            }
+        }
+    }
+}
+
+int Array__Employee_findMax_salary_index(Employee *E, int n) {
+    int max = 0;
+    int max_index = 0;
+    for (int i = 0; i < n; ++i) {
+        if (E[i].salary > max) {
+            max = E[i].salary;
+            max_index = i;
+        }
+    }
+    return max_index;
+}
+
+void Array__Employee_delete(Employee *E, int *n, char *ID) {
+    int pos = -1;
+    for (int i = 0; i < *n; ++i)
+        if (strcmp(ID, E[i].id) == 0) pos = i;
+    for (int i = pos; i < *n - 1; ++i)
+        E[i] = E[i + 1];
 }
 
 int main() {
@@ -122,5 +177,40 @@ int main() {
     fgets(ID, 16, stdin);
     LF_trim(ID);
     printf("ID founded at index %d\n", Array__Employee_searchByID(ID, employee_1, n));
+    //[Exercise 5]
+    puts("-<COUNTING MALE/FEMALE>-");
+    int count[2] = {0};
+    for (int i = 0; i < n; ++i) {
+        if (!strcmp(employee_1[i].sex, "Male")) ++count[0];
+        else ++count[1];
+    }
+    printf("%d Male, %d Female", count[0], count[1]);
+    puts("-<SORT BY BIRTHDAY (ASCENDING)>-");
+    Array__Employee_sortBubble_birthday(employee_1, n);
+    printf("Employee array after sort by birthday:\n\t");
+    for (int i = 0; i < n; ++i) {
+        Employee_term_export(employee_1[i]);
+    }
+    puts("-<SORT BY SALARY (ASCENDING)>-");
+    Array__Employee_sortBubble_salary(employee_1, n);
+    printf("Employee array after sort by salary:\n\t");
+    for (int i = 0; i < n; ++i) {
+        Employee_term_export(employee_1[i]);
+    }
+    puts("-<HIGHEST SALARY>-");
+    int k = Array__Employee_findMax_salary_index(employee_1, n);
+    printf("Employee have the highest salary is %s!", employee_1[k].name);
+    puts("-<YOUNGEST EMPLOYEE>-");
+    Array__Employee_sortBubble_birthday(employee_1, n);
+    printf("The youngest employee is %s!", employee_1[0].name);
+    char *ID = (char*) malloc(16 * sizeof(char));
+    printf("Enter employee's ID to delete");
+    fgets(ID, 16, stdin);
+    LF_trim(ID);
+    Array__Employee_delete(&employee_1, &n, ID);
+    printf("Employee array after delete %s", ID);
+    for (int i = 0; i < n; ++i) {
+        Employee_term_export(employee_1[i]);
+    }
     return 0;
 }
